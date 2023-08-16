@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class Game {
 
     //create variables used by the Game class
@@ -6,8 +8,17 @@ public class Game {
     private Player player;
     private int wins, losses, pushes; //these store scores
 
+    private int cash; //This is the amount of cash the player has
+
+    Scanner betInput = new Scanner(System.in);
+
     //constructor
     public Game(){
+
+        //Set cash to 100 dollars
+
+        cash = 100;
+        System.out.println("You have starting cash of " + cash + "$.");
 
         //Set score to 0
         wins = 0; losses =0; pushes=0;
@@ -38,10 +49,38 @@ public class Game {
             player.getHand().discardHandToDeck(discarded);
         }
 
+
             //check deck has at least 4 cards
         if (deck.cardsLeft() < 4 ){
             deck.reloadDeckFromDiscard(discarded);
             }
+
+
+        //Set up bet
+        int bet = 0;
+        boolean getBet = true;
+
+        while(getBet) {
+
+            try {
+                System.out.println("How much would you like to bet?");
+                bet = betInput.nextInt();
+                while(bet>cash){ //Makes sure the bet input is less than the amount of cash the player has.
+                    System.out.println("You don't have enough cash, choose a lower number.");
+                    bet = betInput.nextInt();
+                }
+                getBet = false;
+            } catch (Exception e) {
+                System.out.println("Invalid bet input.");
+                betInput.next();
+            }
+        }
+
+        cash = cash - bet;
+
+        System.out.println("Your bet is " + bet+ "$. " + "You currently have " + cash + "$ left.");
+
+
 
         //Give dealer two cards
         dealer.getHand().takeCardFromDeck(deck);
@@ -64,12 +103,16 @@ public class Game {
                 //End round with push
                 System.out.println("You both have 21 - Push.");
                 pushes++;
+                cash = cash + bet;
+                System.out.println("You now have " + cash + "$.");
                 startRound();
             }
             else{
                 System.out.println("Dealer has BlackJack. You lose.");
                 dealer.printHand();
                 losses++;
+                System.out.println("You lost " + (bet) + "$.");
+                System.out.println("You now have " + cash + "$.");
                 startRound();
             }
         }
@@ -79,6 +122,9 @@ public class Game {
         if(player.hasBlackjack()){
             System.out.println("You have Blackjack! You win!");
             wins++;
+            cash = (bet*2) + cash;
+            System.out.println("You won " + (bet*2) + "$.");
+            System.out.println("You now have " + cash + "$.");
             startRound();
         }
 
@@ -88,6 +134,8 @@ public class Game {
             System.out.println("You have gone over 21.");
             //count losses
             losses ++;
+            System.out.println("You lost " + (bet) + "$.");
+            System.out.println("You now have " + cash + "$.");
             //start round over
             startRound();
         }
@@ -101,19 +149,30 @@ public class Game {
         if(dealer.getHand().calculatedValue()>21){
             System.out.println("Dealer busts");
             wins++;
+            cash = (bet*2) + cash;
+            System.out.println("You won " + (bet*2) + "$.");
+            System.out.println("You now have " + cash + "$.");
         }
         else if(dealer.getHand().calculatedValue() > player.getHand().calculatedValue()){
             System.out.println("You lose.");
             losses++;
+            System.out.println("You lost " + (bet) + "$.");
+            System.out.println("You now have " + cash + "$.");
         }
         else if(player.getHand().calculatedValue() > dealer.getHand().calculatedValue()){
             System.out.println("You win.");
             wins++;
+            cash = (bet*2) + cash;
+            System.out.println("You won " + (bet*2) + "$.");
+            System.out.println("You now have " + cash + "$.");
         }
         else{
-            System.out.println("Push.");
+            System.out.println("Push. You have not lost any money.");
             pushes ++;
+            cash = bet + cash;
+            System.out.println("You now have " + cash + "$.");
         }
+
 
         startRound();
 
